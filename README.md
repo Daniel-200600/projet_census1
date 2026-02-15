@@ -25,7 +25,7 @@ Cette application utilise un modèle de Machine Learning (Random Forest) pour cl
 - **Normalisation**: StandardScaler
 - **Persistance**: Joblib
 
-## 📋 Prérequis
+##  Prérequis
 
 - Python 3.7+
 - pip
@@ -124,9 +124,6 @@ Les contributions sont les bienvenues ! N'hésitez pas à :
 - Proposer des améliorations via une Pull Request
 - Suggérer de nouvelles fonctionnalités
 
-## 📄 Licence
-
-Ce projet est sous licence MIT. Voir le fichier `LICENSE` pour plus de détails.
 
 ## 📞 Contact
 
@@ -134,4 +131,5 @@ Pour toute question ou suggestion, contactez-moi via GitHub.
 
 ---
 
-**Développé avec ❤️ par [Daniel]**
+**Développé par [Daniel]**
+
