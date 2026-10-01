@@ -1,135 +1,42 @@
-# 💰 Census Income Predictor
+# Census Income Predictor
 
-Une application Streamlit pour prédire si le revenu d'une personne dépasse 50K$ basé sur ses caractéristiques démographiques et économiques.
+A Streamlit app that predicts whether a person's income exceeds **50K USD** from Census
+data, and lets you compare several classification models.
 
-## 📊 Aperçu du Projet
+## Pages
 
-Cette application utilise un modèle de Machine Learning (Random Forest) pour classifier les revenus en deux catégories :
-- **Classe 0**: Revenu ≤ 50K$ (faible/moyen)
-- **Classe 1**: Revenu > 50K$ (élevé)
+- **Home** – project overview.
+- **Data exploration** – descriptive statistics and charts on `census.csv`.
+- **Model training** – trains and compares KNN, Decision Tree, Random Forest, Gradient
+  Boosting, Logistic Regression and SVM, with a configurable test size and random state;
+  shows metrics, the best model and its confusion matrix.
+- **Prediction** – form for age, education level, capital gain/loss and hours per week.
 
-## 🚀 Fonctionnalités
+The target is binary: `<=50K` (class 0) versus `>50K` (class 1). Features are the numeric
+columns of the dataset, standardised with `StandardScaler`.
 
-- ✅ Prédiction en temps réel du revenu
-- ✅ Affichage des probabilités d'appartenance aux classes
-- ✅ Interface utilisateur intuitive avec Streamlit
-- ✅ Validation automatique des entrées
-- ✅ Normalisation des données
-- ✅ Visualisation des résultats
+## Run locally
 
-## 🛠️ Technologies Utilisées
-
-- **Framework Web**: Streamlit
-- **ML Framework**: scikit-learn (Random Forest)
-- **Langage**: Python
-- **Normalisation**: StandardScaler
-- **Persistance**: Joblib
-
-##  Prérequis
-
-- Python 3.7+
-- pip
-
-## 🏃‍♂️ Installation et Exécution Locale
-
-1. **Cloner le repository**:
-   ```bash
-   git clone https://github.com/votre-username/census-income-predictor.git
-   cd census-income-predictor
-   ```
-
-2. **Installer les dépendances**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Lancer l'application**:
-   ```bash
-   streamlit run app.py
-   ```
-
-4. **Accéder à l'application**:
-   Ouvrez votre navigateur à l'adresse `http://localhost:8501`
-
-## 📁 Structure du Projet
-
-```
-census-income-predictor/
-├── app.py                    # Application Streamlit principale
-├── census_app.py             # Script d'analyse et entraînement du modèle
-├── census.csv               # Dataset d'entraînement
-├── requirements.txt          # Dépendances Python
-├── .gitignore               # Fichiers à ignorer par Git
-├── README.md                # Documentation
-├── census.pkl              # Modèle entraîné (Random Forest)
-├── scaler.pkl              # Normalisation StandardScaler
-├── feature_names.pkl       # Noms des variables prédictives
-└── *.png                   # Graphiques d'analyse
-```
-
-## 🔬 Variables Prédictives
-
-Le modèle utilise 5 variables numériques :
-- **Age**: Âge de la personne
-- **Education-num**: Niveau d'éducation (numérique)
-- **Capital-gain**: Gains en capital
-- **Capital-loss**: Pertes en capital
-- **Hours-per-week**: Heures travaillées par semaine
-
-## 📈 Métriques du Modèle
-
-- **Accuracy**: ~85%
-- **F1-Score**: ~0.70
-- **Type**: Classification binaire
-
-## 🌐 Déploiement sur Streamlit Cloud
-
-1. **Créer un repository GitHub** et pousser le code :
-   ```bash
-   git add .
-   git commit -m "Initial commit"
-   git push origin main
-   ```
-
-2. **Se connecter à Streamlit Cloud** :
-   - Aller sur [share.streamlit.io](https://share.streamlit.io)
-   - Se connecter avec votre compte GitHub
-
-3. **Déployer l'application** :
-   - Sélectionner le repository
-   - Spécifier le fichier principal : `app.py`
-   - Cliquer sur "Deploy"
-
-4. **Configuration avancée** (optionnel) :
-   - Ajouter un `packages.txt` si besoin de dépendances système
-   - Configurer les secrets si nécessaire
-
-## 📊 Analyse des Données
-
-Le script `census_app.py` effectue une analyse complète des données :
-- Analyse exploratoire (EDA)
-- Comparaison de différents modèles ML
-- Sélection du meilleur modèle
-- Génération de graphiques et matrices de confusion
-
-Pour relancer l'analyse :
 ```bash
-python census_app.py
+pip install -r requirements.txt
+streamlit run census_app.py
 ```
 
-## 🤝 Contribution
+## Files
 
-Les contributions sont les bienvenues ! N'hésitez pas à :
-- Ouvrir une issue pour signaler un bug
-- Proposer des améliorations via une Pull Request
-- Suggérer de nouvelles fonctionnalités
+| File | Purpose |
+|---|---|
+| `census_app.py` | Streamlit application (exploration, training, prediction) |
+| `census.csv` | Training dataset |
+| `census.pkl`, `best_model.pkl` | Saved models |
+| `requirements.txt` | Dependencies |
 
+## Stack
 
-## 📞 Contact
+Python, Streamlit, pandas, NumPy, scikit-learn, joblib, matplotlib.
 
-Pour toute question ou suggestion, contactez-moi via GitHub.
+## Known limitations
 
----
-
-**Développé par [Daniel]**
-
+- The Prediction page loads `census.pkl`, `scaler.pkl` and `feature_names.pkl`; the last two
+  are not in this repository, so the page shows "no model found" until they are provided.
+- Only numeric features are used; categorical variables are ignored.
