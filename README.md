@@ -29,7 +29,6 @@ streamlit run census_app.py
 | `census_app.py` | Streamlit application (exploration, training, prediction) |
 | `census.csv` | Training dataset |
 | `census.pkl`, `scaler.pkl`, `feature_names.pkl` | Saved model, scaler and feature names |
-| `best_model.pkl` | Earlier saved model (not used by the app) |
 | `requirements.txt` | Dependencies |
 
 ## Stack
