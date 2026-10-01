@@ -43,16 +43,44 @@ def load_data():
     """Charger les données du census"""
     return pd.read_csv('census.csv', encoding='utf-8')
 
+# Fichiers du modèle sauvegardé (écrits par la page « Entraînement du modèle »)
+MODEL_FILE = 'census.pkl'
+SCALER_FILE = 'scaler.pkl'
+FEATURES_FILE = 'feature_names.pkl'
+
+# Origine du modèle utilisé par la page Prédiction : "fichiers" ou "automatique"
+SOURCE_MODELE = {"origine": None}
+
+
+def train_default_model():
+    """Entraîne un Random Forest par défaut sur census.csv (sans toucher au disque)."""
+    df = load_data()
+    X, y, numeric_cols = prepare_data(df)
+    scaler = preprocessing.StandardScaler()
+    X_scaled = pd.DataFrame(scaler.fit_transform(X), columns=numeric_cols)
+    model = RandomForestClassifier(n_estimators=100, max_depth=15, random_state=42, n_jobs=-1)
+    model.fit(X_scaled, y)
+    return model, scaler, numeric_cols
+
+
 @st.cache_resource
 def load_model():
-    """Charger le modèle entraîné"""
+    """Charger le modèle sauvegardé ; à défaut (fichiers absents, ou illisibles car
+    créés avec une autre version de scikit-learn), entraîner un modèle par défaut."""
     try:
-        model = joblib.load('census.pkl')
-        scaler = joblib.load('scaler.pkl')
-        feature_names = joblib.load('feature_names.pkl')
+        model = joblib.load(MODEL_FILE)
+        scaler = joblib.load(SCALER_FILE)
+        feature_names = joblib.load(FEATURES_FILE)
+        SOURCE_MODELE["origine"] = "fichiers"
         return model, scaler, feature_names
-    except FileNotFoundError:
-        return None, None, None
+    except Exception:
+        # FileNotFoundError, ModuleNotFoundError, erreurs de désérialisation, etc.
+        try:
+            SOURCE_MODELE["origine"] = "automatique"
+            return train_default_model()
+        except Exception:
+            SOURCE_MODELE["origine"] = None
+            return None, None, None
 
 def prepare_data(df):
     """Préparer les données pour l'entraînement"""
@@ -525,6 +553,17 @@ elif page == "🔧 Entraînement du modèle":
             best_model_name = results_df.loc[best_idx, 'Model']
             
             st.markdown(f"### 🏆 Meilleur modèle: **{best_model_name}**")
+
+            # Sauvegarde du meilleur modèle, du scaler et des noms de variables :
+            # la page Prédiction les recharge (voir load_model)
+            try:
+                joblib.dump(results[best_idx]['model_object'], MODEL_FILE)
+                joblib.dump(scaler, SCALER_FILE)
+                joblib.dump(list(numeric_cols), FEATURES_FILE)
+                load_model.clear()
+                st.info(f"💾 Modèle « {best_model_name} » sauvegardé : il sera utilisé par la page Prédiction.")
+            except OSError as e:
+                st.warning(f"Le modèle n'a pas pu être sauvegardé : {e}")
             
             # Matrice de confusion du meilleur modèle
             best_result = results[best_idx]
@@ -565,8 +604,11 @@ elif page == "🎯 Prédiction":
     model, scaler, feature_names = load_model()
     
     if model is None:
-        st.error("❌ Aucun modèle trouvé. Veuillez d'abord entraîner un modèle dans l'onglet 'Entraînement du modèle'")
+        st.error("❌ Aucun modèle disponible. Veuillez d'abord entraîner un modèle dans l'onglet 'Entraînement du modèle'")
     else:
+        if SOURCE_MODELE["origine"] == "automatique":
+            st.caption("ℹ️ Modèle Random Forest entraîné automatiquement (aucun modèle sauvegardé "
+                       "utilisable). Lancez l'entraînement pour en sauvegarder un.")
         # Formulaire de saisie
         st.markdown("### Entrez les caractéristiques de la personne:")
         
@@ -638,14 +680,14 @@ elif page == "🎯 Prédiction":
         # Charger des exemples
         df = load_data()
         X, y, numeric_cols = prepare_data(df)
-        X_scaled = scaler.transform(X)
+        X_scaled = pd.DataFrame(scaler.transform(X), columns=numeric_cols)
         
         # Prédire quelques exemples
         sample_indices = np.random.choice(len(X_scaled), 5, replace=False)
         
         examples_results = []
         for idx in sample_indices:
-            sample = X_scaled[idx:idx+1]
+            sample = X_scaled.iloc[idx:idx+1]
             pred = model.predict(sample)[0]
             proba = model.predict_proba(sample)[0] if hasattr(model, 'predict_proba') else None
             
@@ -656,7 +698,7 @@ elif page == "🎯 Prédiction":
                 'Capital Gain': df.iloc[idx]['capital-gain'],
                 'Heures/semaine': df.iloc[idx]['hours-per-week'],
                 'Prédiction': '>50K' if pred == 1 else '<=50K',
-                'Confiance': f"{max(proba)*100:.1f}%" if proba else 'N/A'
+                'Confiance': f"{max(proba)*100:.1f}%" if proba is not None else 'N/A'
             })
         
         examples_df = pd.DataFrame(examples_results)

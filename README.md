@@ -28,15 +28,25 @@ streamlit run census_app.py
 |---|---|
 | `census_app.py` | Streamlit application (exploration, training, prediction) |
 | `census.csv` | Training dataset |
-| `census.pkl`, `best_model.pkl` | Saved models |
+| `census.pkl`, `scaler.pkl`, `feature_names.pkl` | Saved model, scaler and feature names |
+| `best_model.pkl` | Earlier saved model (not used by the app) |
 | `requirements.txt` | Dependencies |
 
 ## Stack
 
 Python, Streamlit, pandas, NumPy, scikit-learn, joblib, matplotlib.
 
+## Model files
+
+The **Model training** page saves the best model (`census.pkl`), the fitted
+`StandardScaler` (`scaler.pkl`) and the feature names (`feature_names.pkl`), which the
+**Prediction** page reloads. If these files are missing, or were created with an incompatible
+scikit-learn version, the Prediction page automatically trains a default Random Forest on
+`census.csv` instead, so it always works. The committed files were generated with
+scikit-learn 1.9.1.
+
 ## Known limitations
 
-- The Prediction page loads `census.pkl`, `scaler.pkl` and `feature_names.pkl`; the last two
-  are not in this repository, so the page shows "no model found" until they are provided.
-- Only numeric features are used; categorical variables are ignored.
+- Only numeric features are used (age, education level, capital gain/loss, hours per week);
+  categorical variables are ignored.
+- Training all six models, including the SVM, takes a few minutes.
